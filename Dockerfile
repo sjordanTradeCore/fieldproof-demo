@@ -19,7 +19,9 @@ ENV EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL CI=1
 COPY --from=source /src/app/package.json ./
 RUN npm install
 COPY --from=source /src/app/ ./
-RUN npx expo export --platform web --output-dir dist
+# This app uses App.tsx/AppEntry (not expo-router). Build it as a single-page web export.
+RUN sed -i 's/"output": "static"/"output": "single"/' app.json \
+ && npx expo export --platform web --output-dir dist
 
 FROM python:3.12-slim
 WORKDIR /app
