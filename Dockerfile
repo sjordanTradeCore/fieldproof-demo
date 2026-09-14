@@ -2,6 +2,7 @@ FROM alpine:3.20 AS source
 WORKDIR /src
 RUN apk add --no-cache unzip coreutils
 COPY bundle/ /tmp/bundle/
+COPY patch/ /tmp/patch/
 RUN cat /tmp/bundle/chunk00 \
         /tmp/bundle/chunk01a /tmp/bundle/chunk01b /tmp/bundle/chunk01c \
         /tmp/bundle/chunk02 /tmp/bundle/chunk03 /tmp/bundle/chunk04 \
@@ -9,6 +10,9 @@ RUN cat /tmp/bundle/chunk00 \
         /tmp/bundle/chunk06 /tmp/bundle/chunk07 /tmp/bundle/chunk08 > /tmp/source.b64 \
  && base64 -d /tmp/source.b64 > /tmp/source.zip \
  && unzip -q /tmp/source.zip -d /src \
+ && cp -R /tmp/patch/app/* /src/app/ \
+ && cp -R /tmp/patch/backend/* /src/backend/ \
+ && sh /tmp/patch/apply.sh /src \
  && test -f /src/app/package.json \
  && test -f /src/backend/app/main.py
 
